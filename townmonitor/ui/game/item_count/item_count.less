@@ -1,0 +1,149 @@
+#itemCountDisplay {
+    position: absolute;
+    font-size: 18px;
+    font-family: @controlFontFamily;
+    color: @headerFontColor;
+    text-shadow: -2px -2px 0px #000000, 0px -2px 0px #000000, 2px -2px 0px #000000, -2px 0px 0px #000000, 2px 0px 0px #000000, -2px 2px 0px #000000, 0px 2px 0px #000000, 2px 2px 0px #000000;
+    text-align: center;
+    z-index: 0;
+    background: #322f28;
+    border-width: 0px 6px 6px 0px;
+    border-image: url(images/bg_border.png) 8 8 8 8 repeat;
+    border-style: solid;
+    height: 37px;
+    padding: 7px;
+    .count {
+        position: relative;
+        display: inline-block;
+        font-size: 18px;
+        top: -13px;
+        vertical-align: middle;
+    }
+    #moraleBanner {
+        vertical-align: top;
+        display: inline-block;
+        position: relative;
+        top: -30px;
+        width: 100px;
+        height: 200px;
+        background: url(/stonehearth/ui/game/images/morale_banner.png);
+        background-size: contain;
+        background-repeat: no-repeat;
+        #towns {
+            margin-left: 5px;
+            height: 35px;
+            width: 90px;
+            position: relative;
+            top: 28px;
+        }
+        #moraleIcon {
+            position: relative;
+            top: 47px;
+            left: 10px;
+            width: 76px;
+            height: 76px;
+            background-size: contain;
+        }
+    }
+    .top_items {
+        display: inline-block;
+        .resource {
+            height: 40px;
+            position: relative;
+            display: inline-block;
+            h2 {
+                display: none;
+            }
+            .num {
+                position: relative;
+                display: inline-block;
+                font-size: 18px;
+                top: -13px;
+                vertical-align: middle;
+                color: @headerFontColor;
+                padding-left: 10px;
+            }
+            .item {
+                position: relative;
+                height: 40px;
+                width: 100%;
+                display: inline-block;
+            }
+        }
+        #add_res {
+            height: 40px;
+            position: relative;
+            display: inline-block;
+            font-size: 40px;
+            top: -5px;
+        }
+        .image {
+            height: 40px;
+            width: 40px;
+        }
+        #inventoryTab {
+            position: fixed;
+            display: none;
+            #inventoryPaletteContainer {
+                text-align: left;
+                height: 500px;
+                overflow-y: scroll;
+                width: 572px;
+                font-size: 18px;
+                .image {
+                    height: 72px;
+                    width: 72px;
+                }
+            }
+            .downSection {
+                .borderImageBackground;
+                border-width: 11px 7px 14px 7px;
+                border-image: url(http://radiant/stonehearth/ui/root/css/images/gui/well.png) 11 7 14 7 repeat;
+                border-style: solid;
+                background-image: url(http://radiant/stonehearth/ui/root/css/images/gui/well.png);
+                padding: 4px;
+                tr:nth-child(even) {
+                    //background-color: #131212 !important;
+                }
+                .downSection {
+                    .borderImageBackground;
+                    border-width: 11px 7px 14px 7px;
+                    border-image: url(http://radiant/stonehearth/ui/root/css/images/gui/well2.png) 11 7 14 7 repeat;
+                    border-style: solid;
+                    background-image: url(http://radiant/stonehearth/ui/root/css/images/gui/well2.png);
+                    padding: 4px;
+                }
+            }
+        }
+    }
+    #imm_tracker {
+        vertical-align: top;
+        position: relative;
+        display: inline-block;
+        .row {
+            display: inline-block;
+        }
+        #netWorthIcon {
+            display: inline-block;
+            height: 40px;
+            width: 40px;
+            background-image: url(http://radiant/stonehearth/entities/loot/gold/gold.png);
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-size: contain;
+        }
+        #ediblesIcon {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            background-image: url(http://radiant/stonehearth/entities/food/pumpkin/pumpkin_basket/pumpkin_basket.png);
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-size: contain;
+        }
+    }
+}
+
+.fullScreen {
+    z-index: 5;
+}

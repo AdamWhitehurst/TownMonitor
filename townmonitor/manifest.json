@@ -1,0 +1,21 @@
+{
+    "info": {
+        "name": "TownMonitor",
+        "author": "Vladimir <vladimir.balasoiu@gmail.com>",
+        "website": "nada",
+        "version": 3
+    },
+    "mixintos": {},
+    "overrides": {},
+    "ui": {
+        "html": [
+            "file(ui/game/item_count/item_count.html)"
+        ],
+        "js": [
+            "file(ui/game/item_count/item_count.js)"
+        ],
+        "less": [
+            "file(ui/game/item_count/item_count.less)"
+        ]
+    }
+}
