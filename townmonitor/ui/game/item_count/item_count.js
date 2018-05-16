@@ -99,50 +99,63 @@
              });
          //inventory tab
          this._inventoryPalette = this.$('#inventoryPalette').stonehearthItemPalette({
-             cssClass: 'inventoryItem',
+             cssClass: 'customInventoryItem',
+             click: function (item) {
+                self.addToArray(item, user_items);
+             }
          });
          radiant.call_obj('stonehearth.inventory', 'get_item_tracker_command', 'stonehearth:usable_item_tracker')
-             .done(function(response) {
-                 if (self.isDestroying || self.isDestroyed) {
-                     return;
-                 }
-                 var itemTraces = {
-                     "tracking_data": {}
-                 };
-                 if (!self._inventoryPalette) {
-                     return;
-                 }
-                 self._playerInventoryTrace = new StonehearthDataTrace(response.tracker, itemTraces)
-                     .progress(function(response) {
-                         var inventoryItems = {}
-                         var total_num_items = 0;
-                         // merge iconic and root entities
-                         radiant.each(response.tracking_data, function(uri, item) {
-                             var rootUri = uri;
-                             var isIconic = false;
-                             if (item.canonical_uri && item.canonical_uri.__self != item.uri.__self) {
-                                 isIconic = true;
-                             }
-                             if (!inventoryItems[rootUri]) {
-                                 inventoryItems[rootUri] = item;
-                                 inventoryItems[rootUri].count = item.count;
-                             } else {
-                                 inventoryItems[rootUri].count = inventoryItems[rootUri].count + item.count;
-                             }
-                             if (isIconic) {
-                                 var numUndeployed = item.count;
-                                 // Add an additional tip to the item for the number of undeployed items in the world.
-                                 inventoryItems[rootUri].additionalTip = i18n.t('stonehearth:ui.game.entities.tooltip_num_undeployed', { num_undeployed: numUndeployed });
-                             }
-                             total_num_items += item.count;
-                         });
-                         self._inventoryPalette.stonehearthItemPalette('updateItems', inventoryItems);
-                         self.set('inventory_item_count', total_num_items);
+         .done(function(response) {
+           if (self.isDestroying || self.isDestroyed) {
+               return;
+           }
+           var itemTraces = {
+               "tracking_data": {}
+           };
+           if (!self._inventoryPalette) {
+               return;
+           }
+           self._playerInventoryTrace = new StonehearthDataTrace(response.tracker, itemTraces)
+            .progress(function(response) {
+               var inventoryItems = {}
+               var total_num_items = 0;
+                  // merge iconic and root entities
+                  radiant.each(response.tracking_data, function(uri, uri_entry) {
+                     radiant.each(uri_entry.item_qualities, function (item_quality_key, item) {
+                        var rootUri = uri;
+
+                        if (uri_entry.canonical_uri) {
+                           rootUri = uri_entry.canonical_uri;
+                        }
+                        var key = rootUri + App.constants.item_quality.KEY_SEPARATOR + item_quality_key;
+                        var isIconic = false;
+                        if (uri_entry.canonical_uri && uri_entry.canonical_uri.__self != uri_entry.uri.__self) {
+                           isIconic = true;
+                        }
+                        if (!inventoryItems[key]) {
+                           inventoryItems[key] = radiant.shallow_copy(uri_entry);
+                           inventoryItems[key].count = item.count;
+                        } else {
+                           inventoryItems[key].count = inventoryItems[key].count + item.count;
+                        }
+                        inventoryItems[key].item_quality = item_quality_key;
+                        if (isIconic) {
+                           var numUndeployed = item.count;
+                           // Add an additional tip to the item for the number of undeployed items in the world.
+                           inventoryItems[key].additionalTip = i18n.t('stonehearth:ui.game.entities.tooltip_num_undeployed', { num_undeployed: numUndeployed });
+                        }
+                        total_num_items += item.count;
                      });
-             })
-             .fail(function(response) {
-                 console.error(response);
-             });
+                  });
+
+                  self._inventoryPalette.stonehearthItemPalette('updateItems', inventoryItems);
+
+                  self.set('inventory_item_count', total_num_items);
+               });
+       })
+         .fail(function(response) {
+           console.error(response);
+       });
          $(window).click(function() {
              if (!$(event.target).closest('#inventoryTab').length) {
                  if ($('#inventoryTab').is(":visible")) {
@@ -154,13 +167,10 @@
              $("#inventoryTab").css("display", "block")
              event.stopPropagation();
          });
-         self.$().on('click', '.inventoryItem ', function() {
-             var item = this;
-             self.addToArray(item, user_items);
-         });
          self.$().on('click', '.resource ', function() {
              var item = this;
              self.removeFromArray(item, user_items);
+             event.stopPropagation();
          });
      },
      destroy: function() {
@@ -227,10 +237,10 @@
              if (self.usableInventoryTracker) {
                  var ingredients = recipe.ingredients;
                  var i = 0;
-                 $('.resource').each(function(index, ingredientDiv) {
+                 $('div#itemCountDisplay > #resource_tracker > .resource').each(function(index, ingredientDiv) {
                      var current_item = ingredients[i];
                      var formatted_ingredient = radiant.shallow_copy(current_item);
-                     if (current_item.material) {
+                     if (current_item && current_item.material) {
                          formatted_ingredient.identifier = formatted_ingredient.material.split(' ').sort().join(' ');
                          formatted_ingredient.kind = 'material';
                          formatted_ingredient.available = radiant.findUsableCount(formatted_ingredient, self.usableInventoryTracker);
@@ -256,12 +266,17 @@
                                  if (catalog.root_entity_uri) {
                                      formatted_ingredient.identifier = catalog.root_entity_uri;
                                      formatted_ingredient.available = radiant.findUsableCount(formatted_ingredient, self.usableInventoryTracker);
+                                     if (current_item.uri != catalog.root_entity_uri) {
+                                        var escapedUri = current_item.uri.replace('.json', '&#46;json');
+                                        if (self.usableInventoryTracker[escapedUri]) {
+                                           formatted_ingredient.available = self.usableInventoryTracker[escapedUri].count;
+                                        }
+                                     }
                                      //formatted_ingredient.uri = current_item.uri.replace('_iconic','');
                                      formatted_ingredient.uri = current_item.uri;
                                      $(ingredientDiv).find('.numHave').text(formatted_ingredient.available);
                                  } else {
                                      formatted_ingredient.available = radiant.findUsableCount(formatted_ingredient, self.usableInventoryTracker);
-                                     //formatted_ingredient.uri = current_item.uri.replace('_iconic','');
                                      formatted_ingredient.uri = current_item.uri;
                                      $(ingredientDiv).find('.numHave').text(formatted_ingredient.available);
                                  }
